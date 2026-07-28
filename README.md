@@ -102,11 +102,9 @@ Review these files before starting to code yourself. The folder shape is the one
 
 Run `flutter analyze` and `flutter test` now, so you know they are green before you change anything. Keep running them as you go.
 
-**Where new code goes.** A new widget for the feed belongs in `lib/features/feed/`. A new screen gets its own folder under `lib/features/`. Anything that talks to the server goes in `lib/data/services/` and is reached through the repository. Following the shape you inherited is part of the exercise: it is exactly the discipline your project team will need in week one.
+**Where new code goes.** A new widget for the feed belongs in `lib/features/feed/`. A new screen gets its own folder under `lib/features/`. Anything that talks to the server goes in `lib/data/services/` and is reached through the repository. Following the shape you inherited is part of the exercise.
 
 ## Task 1: a stateless widget, `PortionsPill`
-
-**About 10 minutes.**
 
 Right now each card says `Engineering courtyard  -  40 left` as one flat string. Replace the count with a small coloured pill that tells you at a glance whether it is worth walking over there.
 
@@ -129,8 +127,6 @@ Then use it in `KaiEventCard` instead of the `... left` text.
 
 ## Task 2: a stateful widget and a POST, the "I ate one" button
 
-**About 15 minutes.**
-
 Add an **Eat** button to every card. Tapping it tells the server that a portion has gone, and the count on screen updates to whatever the server says it now is.
 
 **Build, in four pieces:**
@@ -151,8 +147,6 @@ Add an **Eat** button to every card. Tapping it tells the server that a portion 
 - What should happen if two people eat the last samosa at the same time?
 
 ## Task 3: make the detail screen stand on its own
-
-**About 15 minutes.**
 
 You already have a detail screen, and it cheats. Open `lib/features/event_detail/event_detail_screen.dart` and look at how it gets its event:
 
@@ -175,11 +169,9 @@ It digs the event out of the feed's list. That works perfectly right up until so
 
 **Think about:** what would break if the id in the URL does not exist? Try `/event/nope` and make the app do something sensible.
 
-## Task 4: may I ask? The whole permission tree (homework)
+## Task 4: may I ask? The whole permission tree
 
-**About 15 minutes.** Start it today if you get here, finish it before Monday.
-
-Tuesday's demo took the happy path: press `near_me`, allow, get distances. Real permission handling is a state machine, and the branches you did not see are where the work is. Your job is the rest of the tree, on the **detail screen**, showing "About 320 m from you".
+Tuesday's demo took the "good" path: press `near_me`, allow, get distances. Real permission handling is a state machine, and the branches you did not see are where the work is. Your job is the rest of the tree, on the **detail screen**, showing "About 320 m from you".
 
 **Build:**
 
@@ -216,9 +208,9 @@ The first time you allow location, Google Play services may put up its own **"Fo
 
 **Think about:** you have just made the permission *mechanics* work. Whether it is reasonable to ask at that exact moment is a different question, and it is Monday's lecture.
 
-## Task 5: stretch, the map (take-home)
+## Task 5: The map (extension)
 
-This is the piece of the Kai Finder vision we have been describing since Week One, and it is genuinely an afternoon's work.
+This is the piece of the Kai Finder vision we have been describing since Week One. This task may take a little longer than the others.
 
 ```sh
 flutter pub add flutter_map latlong2
@@ -228,7 +220,7 @@ Add a map screen: OpenStreetMap tiles centred on campus, one marker per **active
 
 **Hints:** `FlutterMap` takes `MapOptions` (an `initialCenter` as a `LatLng` and an `initialZoom`) and a list of layers: a `TileLayer` for the map itself and a `MarkerLayer` for your pins. Set `userAgentPackageName` on the tile layer, because the OpenStreetMap tile servers ask you to identify yourself. Events with nothing left should not be pins you can walk to.
 
-**Two things that will happen to you, and neither is your fault:**
+**Two things that may happen to you, and neither is your fault:**
 
 1. **The Android build breaks the moment you add `flutter_map`**, with `Could not find method kotlin()` pointing at a file inside `~/.pub-cache`. `flutter_map` depends on `path_provider`, whose Android implementation now uses the `jni` package, whose Gradle script does not get on with Android Gradle Plugin 9. Nothing in your code is wrong. Pin that one transitive package by adding this to `pubspec.yaml`, at the top level, next to `dependencies:`, and run `flutter pub get`:
 
@@ -241,7 +233,7 @@ Add a map screen: OpenStreetMap tiles centred on campus, one marker per **active
 
 2. **A warning about OpenStreetMap tile usage** appears in your console on first run. That is expected. Read it: those tile servers run on donations, and it is worth knowing whose infrastructure your free map is using.
 
-No API key. No billing account. No credit card. Compare that with what `google_maps_flutter` would have wanted from you before it drew a single tile, and you have the build-versus-buy argument from Tuesday in your hands.
+No API key. No billing account. No credit card. Compare that with what `google_maps_flutter` would have wanted from you before it drew a single tile.
 
 ## Where to look things up
 
@@ -253,12 +245,8 @@ No API key. No billing account. No credit card. Compare that with what `google_m
 
 ## Getting stuck is fine, staying stuck is not
 
-Ask. That is what the session is for.
+Remember to ask in the lab session if you need help! And post on Ed Discussion any time.
 
-A model solution lives on the **`solution`** branch of this repository, one commit per task, so you can compare your answer with another one or pick up a task you did not get to:
+A model solution is available - one commit per task, so you can compare your answer with another one or pick up a task you did not get to.
 
-```sh
-git log --oneline solution
-```
-
-Read it after you have had a real go at the task, not before. The point of this lab is the twenty minutes where it does not work.
+Look at the solution _after_ you have had a real go at the task, not before. The best learning comes when you're struggling with the task yourself (or in your teams).
