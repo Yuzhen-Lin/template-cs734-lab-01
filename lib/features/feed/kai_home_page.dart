@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../data/models/kai_event.dart';
 import 'events_view_model.dart';
+import 'portions_pill.dart';
 
 // No memory of its own, so it is a StatelessWidget. Stateful is a choice.
 class KaiHomePage extends StatelessWidget {
@@ -147,9 +148,15 @@ class KaiEventCard extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            '${event.location}  -  ${event.portionsLeft} left$howFar',
+            '${event.location}$howFar',
           ),
-          trailing: FavouriteButton(event: event),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PortionsPill(event: event),
+              FavouriteButton(event: event,)
+            ],
+          ),
         ),
       ),
     );
