@@ -38,4 +38,15 @@ class ApiService {
   final body = jsonDecode(response.body) as Map<String, dynamic>;
     return KaiEvent.fromJson(body);
   }
+
+  Future<KaiEvent> fetchEventById(String eventId) async {
+    final response = await _client.get(Uri.parse('$_base/events/$eventId'));
+
+    if (response.statusCode != 200) {
+      throw Exception('Server said ${response.statusCode}');
+    }
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    return KaiEvent.fromJson(body);
+  }
 }

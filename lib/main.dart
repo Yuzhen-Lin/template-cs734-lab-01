@@ -21,7 +21,8 @@ void main() {
 // The route table: URLs mapped to screens, with the parameter in the path.
 // Navigation stops being Navigator.push calls scattered through the widgets
 // and becomes data, in one place you can read.
-GoRouter createRouter() => GoRouter(
+GoRouter createRouter({String? initialLocation}) => GoRouter(
+  initialLocation: initialLocation,
   routes: [
     GoRoute(
       path: '/',
@@ -41,7 +42,9 @@ GoRouter createRouter() => GoRouter(
 );
 
 class KaiFinderApp extends StatefulWidget {
-  const KaiFinderApp({super.key});
+  const KaiFinderApp({super.key, this.initialLocation});
+
+  final String? initialLocation;
 
   @override
   State<KaiFinderApp> createState() => _KaiFinderAppState();
@@ -50,7 +53,7 @@ class KaiFinderApp extends StatefulWidget {
 class _KaiFinderAppState extends State<KaiFinderApp> {
   // Built once and kept. A router rebuilt on every frame would forget where
   // the user is standing.
-  late final GoRouter _router = createRouter();
+  late final GoRouter _router = createRouter(initialLocation: widget.initialLocation);
 
   // This widget is the root of your application.
   @override

@@ -15,4 +15,6 @@ class EventRepository {
   Future<List<KaiEvent>> fetchEvents() => _api.fetchEvents();
 
   Future<KaiEvent> eatPortion(String eventId) => _api.eatPortion(eventId);
+
+  Future<KaiEvent> fetchEventById(String eventId) => _api.fetchEventById(eventId);
 }

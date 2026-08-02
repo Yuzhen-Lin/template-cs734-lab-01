@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/models/kai_event.dart';
+import 'eat_button.dart';
 import 'events_view_model.dart';
 import 'portions_pill.dart';
 
@@ -154,14 +155,8 @@ class KaiEventCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               PortionsPill(event: event),
-              SizedBox(width: 8),
-              IconButton(
-                onPressed: event.isActive
-                    ? () => context.read<EventsViewModel>().eatPortion(event.id)
-                    : null,
-                icon: const Icon(Icons.restaurant),
-                tooltip: 'Eat a portion',
-              ),
+              const SizedBox(width: 8),
+              EatButton(event: event),
               FavouriteButton(event: event),
             ],
           ),

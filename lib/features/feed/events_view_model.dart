@@ -81,7 +81,7 @@ class EventsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> eatPortion(String eventId) async {
+  Future<KaiEvent> eatPortion(String eventId) async {
     final updatedEvent = await repo.eatPortion(eventId);
 
     final index = events.indexWhere((event) => event.id == eventId);
@@ -89,5 +89,7 @@ class EventsViewModel extends ChangeNotifier {
       events[index] = updatedEvent;
       notifyListeners();
     }
+
+    return updatedEvent;
   }
 }
