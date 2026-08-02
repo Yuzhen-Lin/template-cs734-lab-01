@@ -8,7 +8,7 @@ class EatButton extends StatefulWidget {
   const EatButton({super.key, required this.event, this.onEat});
 
   final KaiEvent event;
-  final ValueChanged<KaiEvent>? onEat;
+  final void Function(KaiEvent)? onEat;
 
   @override
   State<EatButton> createState() => _EatButtonState();
@@ -28,7 +28,9 @@ class _EatButtonState extends State<EatButton> {
 
     try {
       final updatedEvent = await context.read<EventsViewModel>().eatPortion(widget.event.id);
-      widget.onEat?.call(updatedEvent);
+      if (widget.onEat != null) {
+        widget.onEat!(updatedEvent);
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not eat a portion.')),

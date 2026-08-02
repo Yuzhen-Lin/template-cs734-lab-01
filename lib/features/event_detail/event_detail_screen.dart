@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/models/kai_event.dart';
-import '../feed/eat_button.dart';
 import '../feed/events_view_model.dart';
 import '../feed/kai_home_page.dart';
 import '../feed/portions_pill.dart';
+import 'package:geolocator/geolocator.dart';
 
 // A screen with an address of its own. The router hands it an id out of the
 // URL and it looks the event up itself, instead of being passed one by the
@@ -23,6 +23,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   bool _isLoading = true;
   String? _error;
   KaiEvent? _event;
+  double? _distanceMetres;
+  String? _locationError;
+  bool _isCheckingLocation = false;
+  bool _permissionPermanentlyDenied = false;
 
   @override
   void initState() {
@@ -43,10 +47,73 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         this._event = event;
         _isLoading = false;
       });
+      _checkLocation();
     } catch (e) {
       setState(() {
         _error = 'Could not reach the Kai server';
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _checkLocation() async {
+    if (_event == null) return;
+
+    setState(() {
+      _isCheckingLocation = true;
+      _locationError = null;
+      _permissionPermanentlyDenied = false;
+    });
+
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationError = 'Location services are disabled.';
+          _isCheckingLocation = false;
+        });
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _locationError = 'Location permissions are denied.';
+            _isCheckingLocation = false;
+            _permissionPermanentlyDenied = false;
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _locationError =
+              'Location permissions are permanently denied. Please enable them in settings.';
+          _isCheckingLocation = false;
+          _permissionPermanentlyDenied = true;
+        });
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition();
+      double distance = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        _event!.lat,
+        _event!.lng,
+      );
+      setState(() {
+        _distanceMetres = distance;
+        _locationError = null;
+        _isCheckingLocation = false;
+      });
+    } catch (e) {
+      setState(() {
+        _locationError = 'Failed to get location: $e';
+        _isCheckingLocation = false;
       });
     }
   }
@@ -110,6 +177,45 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             // The same widget as the feed, in its third home in the app. Star
             // it here, go back, and the card and the badge already know: all
             // three watch one source of truth, and none of them synchronise.
+            const SizedBox(height: 8),
+
+            if (_isCheckingLocation)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: CircularProgressIndicator(),
+              ),
+            if (_locationError != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(child: Text(_locationError!)),
+                    const SizedBox(width: 8),
+                    if (_permissionPermanentlyDenied)
+                      FilledButton(
+                        onPressed: Geolocator.openAppSettings,
+                        child: const Text('Open Settings'),
+                      )
+                    else
+                      FilledButton(
+                        onPressed: _checkLocation,
+                        child: const Text('Retry'),
+                      ),
+                  ],
+                ),
+              ),
+            if (_distanceMetres != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  _distanceMetres! < 1000
+                      ? 'Distance: ${_distanceMetres!.toStringAsFixed(0)} m'
+                      : 'Distance: ${(_distanceMetres! / 1000).toStringAsFixed(2)} km',
+                ),
+              ),
+
+            const SizedBox(height: 8),
             FavouriteButton(event: event),
           ],
         ),

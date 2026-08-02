@@ -16,6 +16,10 @@ class EventsViewModel extends ChangeNotifier {
   String? error;
   List<KaiEvent> events = [];
 
+  bool isLocationLoading = false;
+  String? locationError;
+  bool isLocationPermissionDeniedForever = false;
+
   final Set<String> _favouriteIds = {};
 
   bool isFavourite(String id) => _favouriteIds.contains(id);
@@ -54,15 +58,40 @@ class EventsViewModel extends ChangeNotifier {
   // forever and the only road back through the system settings screen, is
   // Thursday's lab. WHEN it is reasonable to ask is Monday's lecture.
   Future<void> sortByDistance() async {
+    isLocationLoading = true;
+    locationError = null;
+    isLocationPermissionDeniedForever = false;
+    notifyListeners();
+
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      locationError = 'Location services are disabled.';
+      isLocationLoading = false;
+      notifyListeners();
+      return;
+    }
+
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       // The one call that puts a dialog on screen, and it only does anything
       // because the manifest declares the permission.
       permission = await Geolocator.requestPermission();
     }
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return; // demo: give up quietly. Thursday: handle properly.
+    if (permission == LocationPermission.denied) {
+      locationError = 'Location permissions are denied.';
+      isLocationLoading = false;
+      distances = null;
+      notifyListeners();
+      return;
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      locationError =
+          'Location permissions are permanently denied. Please enable them in settings.';
+      isLocationPermissionDeniedForever = true;
+      isLocationLoading = false;
+      distances = null;
+      notifyListeners();
+      return;
     }
 
     // A real conversation with the operating system, over a method channel,
@@ -78,6 +107,8 @@ class EventsViewModel extends ChangeNotifier {
         ),
     };
     events.sort((a, b) => distances![a.id]!.compareTo(distances![b.id]!));
+
+    isLocationLoading = false;
     notifyListeners();
   }
 
