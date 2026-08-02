@@ -80,4 +80,14 @@ class EventsViewModel extends ChangeNotifier {
     events.sort((a, b) => distances![a.id]!.compareTo(distances![b.id]!));
     notifyListeners();
   }
+
+  Future<void> eatPortion(String eventId) async {
+    final updatedEvent = await repo.eatPortion(eventId);
+
+    final index = events.indexWhere((event) => event.id == eventId);
+    if (index != -1) {
+      events[index] = updatedEvent;
+      notifyListeners();
+    }
+  }
 }

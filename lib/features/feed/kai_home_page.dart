@@ -154,7 +154,15 @@ class KaiEventCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               PortionsPill(event: event),
-              FavouriteButton(event: event,)
+              SizedBox(width: 8),
+              IconButton(
+                onPressed: event.isActive
+                    ? () => context.read<EventsViewModel>().eatPortion(event.id)
+                    : null,
+                icon: const Icon(Icons.restaurant),
+                tooltip: 'Eat a portion',
+              ),
+              FavouriteButton(event: event),
             ],
           ),
         ),
